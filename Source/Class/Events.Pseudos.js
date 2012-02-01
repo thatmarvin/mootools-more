@@ -123,11 +123,20 @@ var pseudos = {
 	},
 
 	throttle: function(split, fn, args){
-		if (!fn._throttled){
+		var interval = split.value;
+
+		function execute(){
+			fn._lastExecuted = new Date().valueOf();
 			fn.apply(this, args);
-			fn._throttled = setTimeout(function(){
-				fn._throttled = false;
-			}, split.value || 250);
+		}
+
+		clearTimeout(fn._timer);
+
+		fn._elapsed = new Date().valueOf() - fn._lastExecuted;
+		if (fn._elapsed > interval){
+			execute();
+		} else {
+			fn._timer = setTimeout(execute, interval - fn._elapsed);
 		}
 	},
 
